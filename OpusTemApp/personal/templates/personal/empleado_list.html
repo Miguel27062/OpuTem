@@ -1,0 +1,75 @@
+{% extends "personal/base.html" %}
+{% block title %}Empleados{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Empleados</h1>
+    <p>{{ page_obj.paginator.count }} resultado{{ page_obj.paginator.count|pluralize }}</p>
+  </div>
+  {% if perms.personal.add_empleado %}
+  <a href="{% url 'personal:empleado_create' %}" class="btn btn-primary">＋ Nuevo empleado</a>
+  {% endif %}
+</div>
+
+<form method="get" class="filters">
+  <input class="input" type="search" name="q" value="{{ q }}" placeholder="🔍  Buscar por nombre, documento o correo">
+  <select class="select" name="estado">
+    <option value="">Todos los estados</option>
+    {% for value, label in estados %}
+      <option value="{{ value }}" {% if estado == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary" type="submit">Buscar</button>
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Empleado</th><th>Documento</th><th>Departamento y cargo</th><th>Ingreso</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+      {% for e in empleados %}
+        <tr>
+          <td>
+            <div class="person">
+              <div class="avatar">{{ e.primer_nombre|slice:":1"|upper }}{{ e.primer_apellido|slice:":1"|upper }}</div>
+              <div>
+                <b><a href="{% url 'personal:empleado_detail' e.pk %}">{{ e.nombre_completo }}</a></b>
+                <small>{{ e.correo_electronico }}</small>
+              </div>
+            </div>
+          </td>
+          <td><b>{{ e.tipo_documento }}</b> {{ e.numero_documento }}</td>
+          <td>
+            {% with c=e.contratos_vigentes.0 %}
+              {% if c %}{{ c.cargo.nombre }}<div class="sub">{{ c.cargo.departamento.nombre }}</div>
+              {% else %}<span class="sub">Sin contrato vigente</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td>{{ e.fecha_ingreso|date:"d/m/Y" }}</td>
+          <td><span class="badge badge-{{ e.estado_empleado|lower }}">{{ e.get_estado_empleado_display }}</span></td>
+          <td>
+            <div class="actions">
+              <a class="icon-btn" href="{% url 'personal:empleado_detail' e.pk %}">Ver</a>
+              {% if perms.personal.change_empleado %}<a class="icon-btn" href="{% url 'personal:empleado_update' e.pk %}">Editar</a>{% endif %}
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="empty">No se encontraron empleados.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<div class="pagination">
+  {% if page_obj.has_previous %}<a class="icon-btn" href="?{% if qs %}{{ qs }}&{% endif %}page={{ page_obj.previous_page_number }}">← Anterior</a>{% endif %}
+  <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="icon-btn" href="?{% if qs %}{{ qs }}&{% endif %}page={{ page_obj.next_page_number }}">Siguiente →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "personal/base.html" %}
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="crumbs">
+  <a href="{% url 'personal:empleado_list' %}">Empleados</a> /
+  <a href="{% url 'personal:empleado_detail' empleado.pk %}">{{ empleado.nombre_completo }}</a> / Nuevo contrato
+</div>
+<div class="page-head"><div><h1>{{ titulo }}</h1><p>Registra las condiciones del contrato laboral.</p></div></div>
+
+<form method="post" class="card form-card" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<p class="error">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+  <div class="form-grid">{% include 'personal/_campos.html' %}</div>
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Registrar contrato</button>
+    <a class="btn btn-sec" href="{% url 'personal:empleado_detail' empleado.pk %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión · OpusTem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'personal/css/opustem.css' %}">
+</head>
+<body>
+<div class="login">
+  <section class="login-hero">
+    <div class="brand">
+      <div class="brand-logo">O</div>
+      <div><b>OpusTem</b><small>Gestión de Talento Humano</small></div>
+    </div>
+    <div>
+      <h2>Tu talento humano,<br>bajo control.</h2>
+      <p>Administra empleados, contratos y novedades laborales en un solo lugar, de forma rápida y segura.</p>
+    </div>
+    <div class="chips"><span>👥 Empleados</span><span>📄 Contratos</span><span>🗓️ Novedades</span></div>
+  </section>
+
+  <section class="login-panel">
+    <div class="login-box">
+      <h1>Bienvenido 👋</h1>
+      <p>Ingresa tus credenciales para continuar.</p>
+
+      {% if form.errors %}
+        <div class="alert">Usuario o contraseña incorrectos. Inténtalo de nuevo.</div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="field">
+          <label for="{{ form.username.id_for_label }}">Usuario</label>
+          <input type="text" name="username" id="{{ form.username.id_for_label }}" autofocus required placeholder="tu.usuario">
+        </div>
+        <div class="field">
+          <label for="{{ form.password.id_for_label }}">Contraseña</label>
+          <input type="password" name="password" id="{{ form.password.id_for_label }}" required placeholder="••••••••">
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button class="btn btn-primary" type="submit">Iniciar sesión →</button>
+      </form>
+    </div>
+  </section>
+</div>
+</body>
+</html>

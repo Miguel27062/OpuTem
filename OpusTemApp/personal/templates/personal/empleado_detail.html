@@ -1,0 +1,64 @@
+{% extends "personal/base.html" %}
+{% block title %}{{ empleado.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div class="crumbs"><a href="{% url 'personal:empleado_list' %}">Empleados</a> / {{ empleado.nombre_completo }}</div>
+
+<div class="card">
+  <div class="profile">
+    <div class="avatar">{{ empleado.primer_nombre|slice:":1"|upper }}{{ empleado.primer_apellido|slice:":1"|upper }}</div>
+    <div class="profile-info">
+      <h1>{{ empleado.nombre_completo }}</h1>
+      <p>{{ empleado.correo_electronico }}</p>
+      <span class="badge badge-{{ empleado.estado_empleado|lower }}">{{ empleado.get_estado_empleado_display }}</span>
+    </div>
+    <div class="profile-actions">
+      {% if perms.personal.change_empleado %}<a class="btn" href="{% url 'personal:empleado_update' empleado.pk %}">✏️ Editar</a>{% endif %}
+      {% if perms.personal.add_contratolaboral %}<a class="btn btn-primary" href="{% url 'personal:contrato_create' empleado.pk %}">＋ Nuevo contrato</a>{% endif %}
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="info-item"><span>Documento</span><b>{{ empleado.tipo_documento }} {{ empleado.numero_documento }}</b></div>
+    <div class="info-item"><span>Teléfono</span><b>{{ empleado.telefono|default:"—" }}</b></div>
+    <div class="info-item"><span>Fecha de ingreso</span><b>{{ empleado.fecha_ingreso|date:"d/m/Y" }}</b></div>
+    <div class="info-item"><span>Correo</span><b>{{ empleado.correo_electronico|default:"—" }}</b></div>
+  </div>
+</div>
+
+<h2 class="section-title">Contratos</h2>
+<div class="card"><div class="table-wrap">
+  <table>
+    <thead><tr><th>Cargo</th><th>Tipo</th><th>Inicio</th><th>Fin</th><th>Salario base</th><th>Estado</th></tr></thead>
+    <tbody>
+    {% for c in contratos %}
+      <tr>
+        <td><b>{{ c.cargo.nombre }}</b><div class="sub">{{ c.cargo.departamento.nombre }}</div></td>
+        <td>{{ c.get_tipo_contrato_display|default:c.tipo_contrato }}</td>
+        <td>{{ c.fecha_inicio|date:"d/m/Y" }}</td>
+        <td>{{ c.fecha_fin|date:"d/m/Y"|default:"Indefinido" }}</td>
+        <td>$ {{ c.salario_base|floatformat:"0g" }}</td>
+        <td><span class="badge badge-{{ c.estado_contrato|lower }}">{{ c.get_estado_contrato_display|default:c.estado_contrato }}</span></td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="empty">Este empleado aún no tiene contratos.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+<h2 class="section-title">Novedades recientes</h2>
+<div class="card"><div class="table-wrap">
+  <table>
+    <thead><tr><th>Tipo</th><th>Inicio</th><th>Fin</th><th>Estado</th><th>Descripción</th></tr></thead>
+    <tbody>
+    {% for n in novedades %}
+      <tr>
+        <td><b>{{ n.get_tipo_novedad_display|default:n.tipo_novedad }}</b></td>
+        <td>{{ n.fecha_inicio|date:"d/m/Y" }}</td>
+        <td>{{ n.fecha_fin|date:"d/m/Y"|default:"—" }}</td>
+        <td><span class="badge badge-{{ n.estado_novedad|lower }}">{{ n.get_estado_novedad_display|default:n.estado_novedad }}</span></td>
+        <td class="sub">{{ n.descripcion|default:"—"|truncatechars:80 }}</td>
+      </tr>
+    {% empty %}<tr><td colspan="5" class="empty">Sin novedades registradas.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}
